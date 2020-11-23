@@ -1,0 +1,7 @@
+name: WarPLugin
+main: de.verdox.warplugin.Core
+version: 1.0
+api-version: "1.13"
+commands:
+  war:
+    description: "Main Command for the War Plugin"
