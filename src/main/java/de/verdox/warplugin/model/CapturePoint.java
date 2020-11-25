@@ -1,15 +1,20 @@
 package de.verdox.warplugin.model;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.boss.BossBar;
+import org.bukkit.Material;
+import org.bukkit.block.Beacon;
 import org.bukkit.entity.Player;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CapturePoint {
     private Location location;
-    private Team team;
+    private Team defaultTeam;
+    private Team activeTeam;
     private City city;
     private CaptureType captureType;
+    private Beacon beacon;
 
     private int maxX;
     private int minX;
@@ -18,9 +23,10 @@ public class CapturePoint {
     private int maxZ;
     private int minZ;
 
-    public CapturePoint(Location location, Team team, City city, CaptureType captureType){
+     CapturePoint(Location location, Team defaultTeam, City city, CaptureType captureType){
         this.location = location;
-        this.team = team;
+        this.defaultTeam = defaultTeam;
+        this.activeTeam = defaultTeam;
         this.city = city;
         this.captureType = captureType;
 
@@ -32,6 +38,27 @@ public class CapturePoint {
 
         this.maxZ = this.location.add(0,0,captureType.getZ()).getBlockX();
         this.minZ = this.location.add(0,0,-captureType.getZ()).getBlockX();
+        this.location.getBlock().setType(Material.BEACON);
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public CaptureType getCaptureType() {
+        return captureType;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public List<Player> getPlayersInArea(){
+        return getLocation().getWorld().getNearbyEntities(getLocation(),captureType.getX(),captureType.getY(),captureType.getZ())
+                .stream()
+                .filter(entity -> entity instanceof Player)
+                .map(entity -> (Player) entity)
+                .collect(Collectors.toList());
     }
 
     public boolean isInsideCaptureArea(Player player){
@@ -44,6 +71,18 @@ public class CapturePoint {
                 && location.getBlockZ() >= minZ)
             return true;
         return false;
+    }
+
+    void setActiveTeam(Team activeTeam) {
+        this.activeTeam = activeTeam;
+    }
+
+    public Team getActiveTeam() {
+        return activeTeam;
+    }
+
+    public Team getDefaultTeam() {
+        return defaultTeam;
     }
 
     public enum CaptureType{

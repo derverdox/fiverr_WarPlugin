@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="fiverr_WarPlugin:jar">
+    <output-path>$PROJECT_DIR$/../../Debug Server/1.16.4 Debug Server/plugins</output-path>
+    <root id="archive" name="fiverr_WarPlugin.jar">
+      <element id="module-output" name="fiverr_WarPlugin" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/de/verdox/v-core/1.4/v-core-1.4.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
