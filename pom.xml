@@ -52,6 +52,12 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>de.verdox.vcore</pattern>
+                                    <shadedPattern>de.verdox.warplugin.vcore</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <finalName>${project.build.finalName}_shaded</finalName>
                             <filters>
                                 <filter>

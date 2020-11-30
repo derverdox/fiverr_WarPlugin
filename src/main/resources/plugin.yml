@@ -1,4 +1,4 @@
-name: WarPLugin
+name: WarPlugin
 main: de.verdox.warplugin.Core
 version: 1.0
 api-version: "1.13"

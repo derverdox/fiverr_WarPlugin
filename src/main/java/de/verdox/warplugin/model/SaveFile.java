@@ -2,9 +2,11 @@ package de.verdox.warplugin.model;
 
 import de.verdox.vcore.files.Configuration;
 import de.verdox.vcore.utils.Serializer;
-import org.bukkit.Color;
+import de.verdox.warplugin.Core;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
+
+import java.util.UUID;
 
 public class SaveFile extends Configuration {
 
@@ -19,11 +21,15 @@ public class SaveFile extends Configuration {
     }
 
     void load(){
+        if(config.getConfigurationSection("Cities") == null)
+            return;
         for (String cityName : config.getConfigurationSection("Cities").getKeys(false)) {
-            Team defaultTeam = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+",StandardTeam"));
-            Team activeTeam = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+",ActiveTeam"));
-            City city = new City(cityName,defaultTeam,activeTeam);
-
+            Team defaultTeam = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+".StandardTeam"));
+            Team activeTeam = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+".ActiveTeam"));
+            City city = GameManager.getInstance().registerCity(cityName,defaultTeam,activeTeam);
+            Core.vcore.consoleMessage("City "+cityName+" loaded");
+            if(config.getConfigurationSection("Cities." + cityName + ".CapturePoints") == null)
+                continue;
             for (String capturePointLocString : config.getConfigurationSection("Cities." + cityName + ".CapturePoints").getKeys(false)) {
                 Location location = Serializer.deserializeLocation(capturePointLocString);
                 Team activeTeamOfPoint = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+".CapturePoints."+capturePointLocString+".ActiveTeam"));
@@ -33,12 +39,31 @@ public class SaveFile extends Configuration {
         }
     }
 
+    void removeCity(City city){
+        config.set("Cities."+city.getName(),null);
+        save();
+    }
+
     void updateCity(City city){
         config.set("Cities."+city.getName()+".StandardTeam",city.getStandardTeam().getName());
         config.set("Cities."+city.getName()+".ActiveTeam",city.getActiveTeam().getName());
         for (CapturePoint capturePoint : city.getCapturePoints()) {
             config.set("Cities."+city.getName()+".CapturePoints."+Serializer.serializeLocation(capturePoint.getLocation())+".ActiveTeam", capturePoint.getActiveTeam().getName());
-            config.set("Cities."+city.getName()+".CapturePoints."+Serializer.serializeLocation(capturePoint.getLocation())+".CaptureType", capturePoint.getCaptureType());
+            config.set("Cities."+city.getName()+".CapturePoints."+Serializer.serializeLocation(capturePoint.getLocation())+".CaptureType", capturePoint.getCaptureType().name());
         }
+        save();
     }
+
+    public void updatePlayerData(WarPlayerData warPlayerData){
+        config.set("UserData."+warPlayerData.getPlayer().getUniqueId(),warPlayerData.getTeam().getName());
+        save();
+    }
+
+    public Team getPlayerTeam(UUID uuid){
+        String teamName = config.getString("UserData."+uuid);
+        if(teamName == null)
+            return GameManager.getInstance().getTeam("neutral");
+        return GameManager.getInstance().getTeam(teamName);
+    }
+
 }
