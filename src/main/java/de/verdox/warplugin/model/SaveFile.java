@@ -3,6 +3,7 @@ package de.verdox.warplugin.model;
 import de.verdox.vcore.files.Configuration;
 import de.verdox.vcore.utils.Serializer;
 import de.verdox.warplugin.Core;
+import de.verdox.warplugin.model.items.LandMine;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 
@@ -28,15 +29,33 @@ public class SaveFile extends Configuration {
             Team activeTeam = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+".ActiveTeam"));
             City city = GameManager.getInstance().registerCity(cityName,defaultTeam,activeTeam);
             Core.vcore.consoleMessage("City "+cityName+" loaded");
-            if(config.getConfigurationSection("Cities." + cityName + ".CapturePoints") == null)
-                continue;
-            for (String capturePointLocString : config.getConfigurationSection("Cities." + cityName + ".CapturePoints").getKeys(false)) {
-                Location location = Serializer.deserializeLocation(capturePointLocString);
-                Team activeTeamOfPoint = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+".CapturePoints."+capturePointLocString+".ActiveTeam"));
-                CapturePoint.CaptureType captureType = CapturePoint.CaptureType.valueOf(config.getString("Cities."+cityName+".CapturePoints."+capturePointLocString+".CaptureType"));
-                city.registerCapturePoint(location,activeTeamOfPoint,captureType);
+            if(config.getConfigurationSection("Cities." + cityName + ".CapturePoints") != null){
+                for (String capturePointLocString : config.getConfigurationSection("Cities." + cityName + ".CapturePoints").getKeys(false)) {
+                    Location location = Serializer.deserializeLocation(capturePointLocString);
+                    Team activeTeamOfPoint = GameManager.getInstance().getTeam(config.getString("Cities."+cityName+".CapturePoints."+capturePointLocString+".ActiveTeam"));
+                    CapturePoint.CaptureType captureType = CapturePoint.CaptureType.valueOf(config.getString("Cities."+cityName+".CapturePoints."+capturePointLocString+".CaptureType"));
+                    city.registerCapturePoint(location,activeTeamOfPoint,captureType);
+                }
+            }
+            if(config.getConfigurationSection("LandMines") != null){
+                for (String landMineLoc : config.getConfigurationSection("LandMines").getKeys(false)) {
+                    Location location = Serializer.deserializeLocation(landMineLoc);
+                    Team team = GameManager.getInstance().getTeam(config.getString("LandMines."+landMineLoc));
+                    LandmineBlock landmineBlock = new LandmineBlock(location,team);
+                    GameManager.getInstance().registerLandMineBlock(landmineBlock);
+                }
             }
         }
+    }
+
+    void updateLandMine(LandmineBlock landmineBlock){
+        config.set("LandMines."+Serializer.serializeLocation(landmineBlock.getLocation()),landmineBlock.getTeam().getName());
+        save();
+    }
+
+    void removeLandMine(LandmineBlock landmineBlock){
+        config.set("LandMines."+Serializer.serializeLocation(landmineBlock.getLocation()),null);
+        save();
     }
 
     void removeCity(City city){
