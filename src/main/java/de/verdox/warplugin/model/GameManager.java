@@ -113,8 +113,14 @@ public class GameManager {
 
     public LandmineBlock getLandMineBlock(Location location){
         return landMines.stream().filter(landmineBlock -> {
-            Location testLoc = location.getBlock().getRelative(0,-1,0).getLocation();
-            if(testLoc.equals(landmineBlock.getLocation()))
+            Location testLoc1 = location.getBlock().getRelative(0,-1,0).getLocation();
+            Location testLoc2 = location.getBlock().getRelative(0,-2,0).getLocation();
+            Location testLoc3 = location.getBlock().getRelative(0,0,0).getLocation();
+            Location testLoc4 = location.getBlock().getRelative(0,1,0).getLocation();
+            if(testLoc1.equals(landmineBlock.getLocation())
+            || testLoc2.equals(landmineBlock.getLocation())
+            || testLoc3.equals(landmineBlock.getLocation())
+            || testLoc4.equals(landmineBlock.getLocation()))
                 return true;
             return false;
         }).findAny().orElse(null);
